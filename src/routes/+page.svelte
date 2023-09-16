@@ -4,6 +4,7 @@
 	const minTime = 63;
 	const maxTime = 72000;
 	const corseAdjustStep = 28;
+	const minDistance = 40;
 
 	let timerTime = minTime;
 	let coarseAdjustment = 1;
@@ -12,6 +13,16 @@
 	let minTimeWarning = false;
 	let maxTimeWarning = false;
 
+	let originX = 0;
+	let originY = 0;
+
+	let destinationX = 100;
+	let destinationY = 100;
+
+	let momentumDistanceX = 0;
+	let momentumDistanceY = 0;
+
+	// Timer handling
 	$: {
 		if (timerTime < 0) {
 			timerTime = 0;
@@ -31,6 +42,23 @@
 
 		coarseAdjustment = Math.floor((timerTime - minTime) / corseAdjustStep) + 1;
 		fineAdjustment = ((timerTime - minTime) % corseAdjustStep) + 1;
+	}
+
+	// Distance calculation
+	$: {
+		const xDiff = originX - destinationX;
+		const yDiff = originY - destinationY;
+
+		const targetDistance = Math.sqrt(xDiff * xDiff + yDiff * yDiff);
+
+		if (targetDistance < minDistance) {
+			console.log('Distance is too short');
+		}
+
+		const r = yDiff / xDiff;
+
+		momentumDistanceX = targetDistance / 0.6 / Math.sqrt(r * r + 1);
+		momentumDistanceY = momentumDistanceX * r;
 	}
 </script>
 
@@ -66,5 +94,22 @@
 				The timer can't count past {maxTime} ticks, try increasing the golem count
 			</p>
 		{/if}
+	</form>
+
+	<hr class="w-4/5 mx-auto bg-black border border-slate-600 mt-2" />
+
+	<form class="grid grid-cols-1 place-items-center gap-y-1 mt-4">
+		<label for="originX">What is the coordinates of the launcher (blue glass)</label>
+		<div class="grid grid-cols-2 gap-2">
+			<input type="number" name="originX" bind:value={originX} />
+			<input type="number" name="originY" bind:value={originY} />
+		</div>
+
+		<label for="originX">What is the coordinates of the center of the catching area</label>
+		<div class="grid grid-cols-2 gap-2">
+			<input type="number" name="destX" bind:value={destinationX} />
+			<input type="number" name="destY" bind:value={destinationY} />
+		</div>
+		<p>You need X: {momentumDistanceX} Y: {momentumDistanceY}</p>
 	</form>
 </body>
