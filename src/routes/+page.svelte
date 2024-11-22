@@ -57,7 +57,7 @@
 
 		const r = yDiff / xDiff;
 
-		momentumDistanceX = targetDistance / 0.6 / Math.sqrt(r * r + 1);
+		momentumDistanceX = targetDistance / 0.989 / Math.sqrt(r * r + 1);
 		momentumDistanceY = momentumDistanceX * r;
 	}
 </script>
