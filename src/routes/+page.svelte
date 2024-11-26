@@ -14,13 +14,20 @@
 	let maxTimeWarning = false;
 
 	let originX = 0;
-	let originY = 0;
+	let originZ = 0;
 
 	let destinationX = 100;
-	let destinationY = 100;
+	let destinationZ = 100;
 
-	let momentumDistanceX = 0;
-	let momentumDistanceY = 0;
+	let delayLong = 0;
+	let delayShort = 0;
+
+	let xResetDir = true;
+
+	let longMomentum = 0;
+	let shortMomentum = 0;
+
+	let frictionValue = 0.9
 
 	// Timer handling
 	$: {
@@ -40,25 +47,43 @@
 			maxTimeWarning = false;
 		}
 
-		coarseAdjustment = Math.floor((timerTime - minTime) / corseAdjustStep) + 1;
-		fineAdjustment = ((timerTime - minTime) % corseAdjustStep) + 1;
+		coarseAdjustment = Math.floor((timerTime - 23) / corseAdjustStep) + 1;
+		fineAdjustment = timerTime - 23 - (28*Math.floor((timerTime-24)/28));
 	}
 
 	// Distance calculation
 	$: {
 		const xDiff = originX - destinationX;
-		const yDiff = originY - destinationY;
+		const zDiff = originZ - destinationZ;
 
-		const targetDistance = Math.sqrt(xDiff * xDiff + yDiff * yDiff);
 
-		if (targetDistance < minDistance) {
+		if (xDiff < minDistance || zDiff < minDistance) {
 			console.log('Distance is too short');
 		}
 
-		const r = yDiff / xDiff;
+		let momentumX = xDiff / frictionValue;
+		let momentumZ = zDiff / frictionValue;
 
-		momentumDistanceX = targetDistance / 0.989 / Math.sqrt(r * r + 1);
-		momentumDistanceY = momentumDistanceX * r;
+		// This comes from taking a minimum time shot and finding the momentum imparted
+		// This comes out to 54, so if the timer instantly went off it would still get 54 momentum
+
+
+		if (Math.abs(momentumX) < Math.abs(momentumZ)) {
+			xResetDir = true;
+			longMomentum = momentumZ;
+			shortMomentum = momentumX;
+		} else {
+			xResetDir = false;
+			longMomentum = momentumX;
+			shortMomentum = momentumZ;
+		}
+
+		console.log(shortMomentum)
+		
+		delayLong = Math.abs(longMomentum)-44;
+		// This -10 is dumb and should probably be accounted for somewhere else. Making it -13 could probably work too but 
+		// That's even more dumb :)
+		delayShort = delayLong-Math.abs(shortMomentum);
 	}
 </script>
 
@@ -102,14 +127,16 @@
 		<label for="originX">What is the coordinates of the launcher (blue glass)</label>
 		<div class="grid grid-cols-2 gap-2">
 			<input type="number" name="originX" bind:value={originX} />
-			<input type="number" name="originY" bind:value={originY} />
+			<input type="number" name="originY" bind:value={originZ} />
 		</div>
 
 		<label for="originX">What is the coordinates of the center of the catching area</label>
 		<div class="grid grid-cols-2 gap-2">
 			<input type="number" name="destX" bind:value={destinationX} />
-			<input type="number" name="destY" bind:value={destinationY} />
+			<input type="number" name="destY" bind:value={destinationZ} />
+			<input type="number" name="frictionValue" bind:value={frictionValue}> 
 		</div>
-		<p>You need X: {momentumDistanceX} Y: {momentumDistanceY}</p>
+		<p>You need a send it delay of: {Math.round(delayLong)} and reset it delay of: {Math.round(delayShort)}. The Launch Direction Light will be {xResetDir ? "on": "off"}</p>
+		<p>Expected momentum is: long, {longMomentum} and short, {shortMomentum} </p>
 	</form>
 </body>
