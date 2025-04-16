@@ -53,8 +53,8 @@
 
 	// Distance calculation
 	$: {
-		const xDiff = originX - destinationX;
-		const zDiff = originZ - destinationZ;
+		const xDiff = Math.abs(originX - destinationX);
+		const zDiff = Math.abs(originZ - destinationZ);
 
 
 		if (xDiff < minDistance || zDiff < minDistance) {
@@ -77,8 +77,6 @@
 			longMomentum = momentumX;
 			shortMomentum = momentumZ;
 		}
-
-		console.log(shortMomentum)
 		
 		delayLong = Math.abs(longMomentum)-44;
 		delayShort = delayLong-Math.abs(shortMomentum);
