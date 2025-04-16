@@ -81,8 +81,6 @@
 		console.log(shortMomentum)
 		
 		delayLong = Math.abs(longMomentum)-44;
-		// This -10 is dumb and should probably be accounted for somewhere else. Making it -13 could probably work too but 
-		// That's even more dumb :)
 		delayShort = delayLong-Math.abs(shortMomentum);
 	}
 </script>
